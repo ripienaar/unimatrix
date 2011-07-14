@@ -1,0 +1,5 @@
+---
+:logfile: /tmp/unimatrix.log
+:keeplogs: 2
+:max_log_size: 20480
+:loglevel: debug

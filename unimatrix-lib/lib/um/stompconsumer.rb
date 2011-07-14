@@ -8,7 +8,7 @@ module UM
             raise "routingkey needs to be set" unless routingkey
             raise "should respond to on_message" unless respond_to?(:on_message)
 
-            Util.config_logger(configkey)
+            #Util.config_logger(configkey)
 
             @dlq = Config[configkey][:dlq]
             @origin = name unless @origin
@@ -23,7 +23,7 @@ module UM
         def run
             subscribe Config[configkey][:consume]
 
-            @stats = Stats.new(name, origin, connection) if Config[configkey][:keepstats]
+            #@stats = Stats.new(name, origin, connection) if Config[configkey][:keepstats]
 
             consume
         end

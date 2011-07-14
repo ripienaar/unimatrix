@@ -1,4 +1,4 @@
-module Unimatrix
+module UM
     class Util
         class << self
             def timestamp
@@ -24,7 +24,7 @@ module Unimatrix
             #
             # This will create a temp file in your system tempdir,
             # write to it and move the file over the target.
-            def atomic_file(target, user=:currentuser, group=:currentgroup, :mode=0644, tempdir=Dir.tmpdir)
+            def atomic_file(target, user=:currentuser, group=:currentgroup, mode=0644, tempdir=Dir.tmpdir)
                 temp = Tempfile.new(basename(target), tempdir)
 
                 yield(temp)
@@ -42,6 +42,13 @@ module Unimatrix
                 chmod(mode, target)
             end
 
+            def config_logger(configkey)
+                Config.loadconfig("logger")
+                if Config[configkey].include?(:logger)
+                    Config["logger"].merge!(Config[configkey][:logger])
+                end
+            end
+
             # Starts a typical application:
             #
             #  - loads the config from configdir
@@ -50,18 +57,10 @@ module Unimatrix
             def startapp(configkey, klass, configdir = "/etc/unimatrix")
                 Config[:configdir] = configdir
                 Config.loadconfig(configkey)
+
                 config_logger(configkey)
 
-                Log.info("#{configkey} starting daemonized: #{rundaemonized}")
-
-                Signal.trap("TERM") do
-                    begin
-                        Log.debug("Received TERM signal, terminating")
-                        File.unlink(pidfile)
-                    ensure
-                        exit!
-                    end
-                end
+                Log.info("#{configkey} starting daemonized: #{Config[configkey][:daemonize]}")
 
                 daemonize(configkey)
 
@@ -77,9 +76,13 @@ module Unimatrix
 
                 options[:multiple] = Config[configkey][:multiple_instances] || false
                 options[:ontop] = Config[configkey][:daemonize] || true
-                options[:app_name] = "unimatrix #{__FILE__}"
+                options[:app_name] = configkey
+                options[:dir_mode] = :normal
                 options[:log_output] = true
                 options[:log_dir] = File.dirname(Config["logger"][:logfile]) || "/var/log/unimatrix"
+                options[:dir] = options[:log_dir]
+
+                pp options
 
                 Daemons.daemonize(options)
             end

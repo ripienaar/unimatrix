@@ -1,0 +1,3 @@
+---
+:routesdir: /etc/unimatrix/routes
+:reloadtrigger: reload.txt

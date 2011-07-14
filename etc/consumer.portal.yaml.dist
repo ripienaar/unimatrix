@@ -1,0 +1,13 @@
+---
+:keepstats: true
+:daemonize: true
+:dlq: /queue/unimatrix.test.portal.dlq
+:consume:
+- /topic/unimatrix.test.portal
+- /topic/unimatrix.portal
+- /queue/unimatrix.portal
+:logger:
+    :logfile: /tmp/portal-consumer.log
+:archive:
+    :database: unimatrix
+    :collection: archive

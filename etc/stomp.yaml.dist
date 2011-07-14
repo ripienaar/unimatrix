@@ -1,0 +1,16 @@
+---
+:servers:
+- :port: 6163
+  :login: user
+  :passcode: password
+  :ssl: false
+  :host: stomp
+:options:
+  :back_off_multiplier: 2
+  :max_reconnect_attempts: 0
+  :randomize: false
+  :initial_reconnect_delay: 0.01
+  :backup: false
+  :max_reconnect_delay: 30
+  :timeout: -1
+  :use_exponential_back_off: true
