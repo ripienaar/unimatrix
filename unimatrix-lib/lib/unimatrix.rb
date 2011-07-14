@@ -4,6 +4,7 @@ require 'tempfile'
 require 'fileutils'
 require 'logger'
 require 'yaml'
+require 'daemons'
 
 module UM
     autoload :Config, "um/config"

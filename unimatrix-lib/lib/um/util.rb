@@ -52,9 +52,6 @@ module Unimatrix
                 Config.loadconfig(configkey)
                 config_logger(configkey)
 
-                rundaemonized = Config[configkey][:daemonize]
-                pidfile = Config[configkey][:pidfile]
-
                 Log.info("#{configkey} starting daemonized: #{rundaemonized}")
 
                 Signal.trap("TERM") do
@@ -66,11 +63,25 @@ module Unimatrix
                     end
                 end
 
-                if rundaemonized
-                    raise "Daemonizing is not implimented"
-                else
-                    klass.new.run
-                end
+                daemonize(configkey)
+
+                klass.new.run
+            end
+
+            # Sets up an application using the Daemons gem, looks in the config for:
+            #
+            #  - multiple_instance - true to allow multiple daemons to run
+            #  - daemonize         - true to run in the background
+            def daemonize(configkey)
+                options = {}
+
+                options[:multiple] = Config[configkey][:multiple_instances] || false
+                options[:ontop] = Config[configkey][:daemonize] || true
+                options[:app_name] = "unimatrix #{__FILE__}"
+                options[:log_output] = true
+                options[:log_dir] = File.dirname(Config["logger"][:logfile]) || "/var/log/unimatrix"
+
+                Daemons.daemonize(options)
             end
         end
     end
