@@ -10,6 +10,7 @@ module UM
     autoload :Config, "um/config"
     autoload :Event, "um/event"
     autoload :Log, "um/log"
+    autoload :MongoStorage, "um/mongostorage"
     autoload :Router, "um/router"
     autoload :RouterInstance, "um/routerinstance"
     autoload :Stats, "um/stats"
