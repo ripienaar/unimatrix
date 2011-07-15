@@ -12,6 +12,7 @@ module UM
     autoload :Log, "um/log"
     autoload :Router, "um/router"
     autoload :RouterInstance, "um/routerinstance"
+    autoload :Stats, "um/stats"
     autoload :StompConnector, "um/stompconnector"
     autoload :StompConsumer, "um/stompconsumer"
     autoload :Util, "um/util"

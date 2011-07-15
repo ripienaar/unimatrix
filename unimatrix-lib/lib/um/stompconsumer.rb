@@ -2,13 +2,14 @@ module UM
     class StompConsumer
         attr_reader :connection, :retries, :dlq, :origin, :name, :stats, :router, :configkey, :routingkey
 
-        def config
-            raise "name needs to be set" unless name
-            raise "configkey needs to be set" unless configkey
-            raise "routingkey needs to be set" unless routingkey
+        def config(name, configkey, routingkey)
+            @name = name
+            @configkey = configkey
+            @routingkey = routingkey
+
             raise "should respond to on_message" unless respond_to?(:on_message)
 
-            #Util.config_logger(configkey)
+            Util.config_logger(configkey)
 
             @dlq = Config[configkey][:dlq]
             @origin = name unless @origin
@@ -23,7 +24,7 @@ module UM
         def run
             subscribe Config[configkey][:consume]
 
-            #@stats = Stats.new(name, origin, connection) if Config[configkey][:keepstats]
+            @stats = Stats.new(name, origin, connection) if Config[configkey][:keepstats]
 
             consume
         end

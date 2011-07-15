@@ -60,9 +60,9 @@ module UM
 
                 config_logger(configkey)
 
-                Log.info("#{configkey} starting daemonized: #{Config[configkey][:daemonize]}")
-
                 daemonize(configkey)
+
+                Log.info("#{configkey} starting daemonized: #{Config[configkey][:daemonize]}")
 
                 klass.new.run
             end
@@ -81,8 +81,6 @@ module UM
                 options[:log_output] = true
                 options[:log_dir] = File.dirname(Config["logger"][:logfile]) || "/var/log/unimatrix"
                 options[:dir] = options[:log_dir]
-
-                pp options
 
                 Daemons.daemonize(options)
             end

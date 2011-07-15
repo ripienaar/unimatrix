@@ -2,14 +2,10 @@ module UM
     module Consumer
         class Portal<StompConsumer
             def initialize
-                @name = "unimatrix.consumer.portal"
-                @configkey = "consumer.portal"
-                @routingkey = "portal"
-
                 #@mongodb = MongoStorage.new(Config[configkey][:archive][:database], Config[configkey][:archive][:collection])
                 #@callbacks = CallbackRouter.new("portal")
 
-                config
+                config("unimatrix.consumer.portal", "consumer.portal", "portal")
             end
 
             def callback(event)
