@@ -75,13 +75,14 @@ module UM
                 options = {}
 
                 options[:multiple] = Config[configkey][:multiple_instances] || false
-                options[:ontop] = Config[configkey][:daemonize] || true
-                options[:app_name] = configkey
+                options[:ontop] = !Config[configkey][:daemonize]
+                options[:app_name] = configkey.gsub(".", "_")
                 options[:dir_mode] = :normal
                 options[:log_output] = true
                 options[:log_dir] = File.dirname(Config["logger"][:logfile]) || "/var/log/unimatrix"
                 options[:dir] = options[:log_dir]
 
+                require 'pp'; pp options
                 Daemons.daemonize(options)
             end
         end

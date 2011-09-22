@@ -1,0 +1,12 @@
+---
+:keepstats: true
+:daemonize: false
+:dlq: /queue/unimatrix.test.simple_counter.dlq
+:consume: /queue/unimatrix.test.simple_counter
+:logger:
+    :logfile: /tmp/simple_counter-consumer.log
+:archive:
+    :database:unimatrixgumevents
+    :total_collection: simple_counter_total
+    :hour_collection: simple_counter_hour
+    :month_collection: simple_counter_month

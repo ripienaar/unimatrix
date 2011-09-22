@@ -17,7 +17,7 @@ module UM
         end
 
         def valid_types
-            ["archive", "metric", "status"]
+            ["archive", "metric", "status", "simple_counter"]
         end
 
         def to_status

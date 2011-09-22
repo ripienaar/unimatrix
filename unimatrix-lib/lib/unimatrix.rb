@@ -5,6 +5,7 @@ require 'fileutils'
 require 'logger'
 require 'yaml'
 require 'daemons'
+require 'um/monkey_patches.rb'
 
 module UM
     autoload :Config, "um/config"
