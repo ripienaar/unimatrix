@@ -81,9 +81,9 @@ class UnimatrixMunin
     def initialize(options)
         @options = options
 
-	Timeout::timeout(2) {
+        Timeout::timeout(2) {
             @connection = connect_stomp
-	}
+        }
 
         @munin = connect_munin
 
@@ -143,7 +143,7 @@ class UnimatrixMunin
     end
 
     def publish
-	Timeout::timeout(45) {
+        Timeout::timeout(45) {
             munin.services.each do |service|
                 event = event_for_service(munin.service(service))
 
@@ -153,7 +153,7 @@ class UnimatrixMunin
             connection.publish(options[:portal], stats.to_json)
 
             connection.disconnect
-	}
+        }
     end
 end
 
