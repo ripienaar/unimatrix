@@ -142,7 +142,7 @@ class UnimatrixMunin
             key = k.clone
             val = v.clone
 
-            next unless val =~ /^\d+$/
+            next unless val =~ /^[\d\.]+$/
 
             @metrics += 1
 
