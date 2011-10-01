@@ -16,6 +16,7 @@ options = {:stomp_hosts => nil,
            :stomp_port => 6163,
            :munin_host => "localhost",
            :munin_port => 4949,
+           :splay => 20,
            :origin => "munin",
            :subject => Facter.fqdn,
            :portal => "/queue/unimatrix.portal",
@@ -63,6 +64,10 @@ opt.on("--portal PORTAL", "Unimatrix Portal") do |f|
     options[:portal] = f
 end
 
+opt.on("--splay SECONDS", Integer, "Sleep a random time") do |f|
+    options[:splay] = f
+end
+
 opt.on("--config CONFIG", "YAML Config File") do |f|
     options[:yaml] = f
 end
@@ -76,10 +81,17 @@ end
 [:stomp_hosts, :stomp_user, :stomp_password].each {|v| raise "#{v} should be supplied" unless options[v]}
 
 class UnimatrixMunin
-    attr_reader :metrics, :services, :start_time, :connection, :options, :munin
+    attr_reader :metrics, :services, :start_time, :connection, :options, :munin, :sleep_time
 
     def initialize(options)
         @options = options
+
+        if options[:splay] > 0
+            @sleep_time = rand(options[:splay])
+            sleep sleep_time
+        else
+            @sleep_time = 0
+        end
 
         Timeout::timeout(2) {
             @connection = connect_stomp
@@ -127,9 +139,17 @@ class UnimatrixMunin
         event["text"] = service.name
 
         service.params.each_pair do |k, v|
+            key = k.clone
+            val = v.clone
+
+            next unless val =~ /^\d+$/
+
             @metrics += 1
-            metric = [service.name, k].join(".")
-            event["metrics"][metric] = v
+
+            key.gsub!("#", "size")
+
+            metric = [service.name, key].join(".")
+            event["metrics"][metric] = val
         end
 
         return event
@@ -137,16 +157,18 @@ class UnimatrixMunin
 
     def stats
         stats_event = empty_event
-        stats_event["metrics"] = {"um_munin.services" => @services, "um_munin.metrics" => @metrics, "um_munin.time" => (Time.now - @start_time).to_f}
+        stats_event["metrics"] = {"um_munin.services" => @services,
+                                  "um_munin.metrics" => @metrics,
+                                  "um_munin.sleep" => @sleep_time,
+                                  "um_munin.time" => (Time.now - @start_time).to_f}
 
         return stats_event
     end
 
     def publish
-        Timeout::timeout(45) {
+        Timeout::timeout(30) {
             munin.services.each do |service|
                 event = event_for_service(munin.service(service))
-
                 connection.publish(options[:portal], event.to_json)
             end
 
@@ -163,3 +185,4 @@ begin
 rescue Timeout::Error
     puts "Timeout reached while sending munin stats"
 end
+
