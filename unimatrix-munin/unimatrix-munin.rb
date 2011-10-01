@@ -7,6 +7,7 @@ require 'optparse'
 require 'facter'
 require 'munin-ruby'
 require 'yaml'
+require 'timeout'
 require 'pp'
 
 options = {:stomp_hosts => nil,
@@ -79,7 +80,11 @@ class UnimatrixMunin
 
     def initialize(options)
         @options = options
-        @connection = connect_stomp
+
+	Timeout::timeout(2) {
+            @connection = connect_stomp
+	}
+
         @munin = connect_munin
 
         @services = 0
@@ -138,17 +143,23 @@ class UnimatrixMunin
     end
 
     def publish
-        munin.services.each do |service|
-            event = event_for_service(munin.service(service))
+	Timeout::timeout(45) {
+            munin.services.each do |service|
+                event = event_for_service(munin.service(service))
 
-            connection.publish(options[:portal], event.to_json)
-        end
+                connection.publish(options[:portal], event.to_json)
+            end
 
-        connection.publish(options[:portal], stats.to_json)
+            connection.publish(options[:portal], stats.to_json)
 
-        connection.disconnect
+            connection.disconnect
+	}
     end
 end
 
-munin = UnimatrixMunin.new(options)
-munin.publish
+begin
+    munin = UnimatrixMunin.new(options)
+    munin.publish
+rescue Timeout::Error
+    puts "Timeout reached while sending munin stats"
+end
